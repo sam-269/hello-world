@@ -1,56 +1,47 @@
-# hello-world
-First repository ever
-@RestController
-@RequestMapping("/api")
+@Service
 
-public class LeaveController {
+public class LeaveService {
     @Autowired
-    private LeaveService leaveService;
+    private LeavesDao leavesDao;
 
-//    @HystrixCommand(fallbackMethod = "runLeaveFallback", commandProperties = {
-//    @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value =
-//                    "100"),
-//    @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value =
-//                    "20"),
-//
-//    @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value =
-//                    "1000"),
-//    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",
-//                    value = "10000") })
-
-    @GetMapping("/{id}")
-    public List<Leaves> getLeavesById(@PathVariable("id") Integer id){
-
-        return leaveService.getLeavesById(id);
+    public List<Leaves> getLeavesById(Integer id) {
+        if (!leavesDao.existsById(id)) {
+            throw new NotFoundException("Employee not found");
+        }
+        return leavesDao.findByEmpId(id);
     }
 
-    @GetMapping("all_leaves/{id}")
-    public List<Date> method1(@PathVariable("id") Integer id)
-    {
-        return leaveService.method1(id);
-    }
-
-    @PostMapping("leaves/{id}")
-    public List<Date> checkLeaves(@PathVariable("id") Integer id,
-                                  @NotNull @RequestBody DateParams date) {
-    	return leaveService.checkLeaves(id,date.getStartdate(),date.getEnddate());
+    public List<Date> method1(Integer id) {
+        List<Leaves> temp=leavesDao.findByEmpId(id);
+        List<Date> all_leaves=new ArrayList<Date>();
+        for (int i = 0; i < temp.size(); i++){
+            all_leaves.add(temp.get(i).getLeaves());
+        }
+        return all_leaves;
     }
 
 
-    @PostMapping("leaves2/{id}")
-    public Integer applyLeaves( @PathVariable("id")Integer id,
-                                @RequestBody DateParams date){
-        return leaveService.applyLeaves(id,date.getFromDate(),date.getToDate());
+    public List<Date> checkLeaves(Integer id, Date startDate, Date endDate) {
+        if(startDate== null || endDate== null){
+            throw new ApiRequestException("Dates cannot be null");
+        }
+        if (startDate.after(endDate)){
+            throw new ApiRequestException("End date cannot be before start date");
+        }
+        List<Date> all_leaves=method1(id);
+        List<Date> list = new ArrayList<Date>();
+        for(int i=0; i<all_leaves.size(); i++){
+            if(startDate.before(all_leaves.get(i))){
+                if(endDate.after(all_leaves.get(i))){
+                    list.add(all_leaves.get(i));
+                }
+            }
+        }
+        //return this.employee.get(empId).getLeaves();
+        return list;
     }
 
-    public String runLeaveFallback(){
-        return "Some Error occurred on the server, try again";
+    public Integer applyLeaves(Integer id,Date fromDate, Date toDate) {
+        return 1;
     }
-
-    @GetMapping("jsp")
-    public ModelAndView hello(Model model) {
-        ModelAndView mav = new ModelAndView();
-        mav.setViewName("index");
-        return mav;
-    }
-   
+}
