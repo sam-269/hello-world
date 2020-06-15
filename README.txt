@@ -1,23 +1,24 @@
-spring.jackson.date-format=dd.MM.yyyy
-spring.jackson.time-zone=IST
-spring.jackson.serialization.write-dates-as-timestamps=false
 
-spring.mvc.view.prefix=/WEB-INF/view/
-spring.mvc.view.suffix=.jsp
+@Documented
+@Target({ElementType.METHOD, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = AfterDateValidator.class)
+public @interface AfterDate {
+    String message() default "{Date should not be a past date}";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
 
-spring.datasource.url=jdbc:postgresql://localhost:5433/employees
-spring.datasource.username=postgres
-spring.datasource.password=samiksha
-spring.jpa.show-sql=true
-spring.main.allow-bean-definition-overriding=true
-## Hibernate Properties
-# The SQL dialect makes Hibernate generate better SQL for the chosen database
-spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
 
-# Hibernate ddl auto (create, create-drop, validate, update)
-spring.jpa.hibernate.ddl-auto = update
-logging.level.org.hibernate.SQL=DEBUG
-logging.level.org.hibernate.type=TRACE
+public class AfterDateValidator implements ConstraintValidator<AfterDate, Date> {
+    public void initialize(AfterDate constraint) {
+    }
 
-spring.jpa.generate-ddl=true
-spring.profiles.active=@spring.profiles.active@
+    public boolean isValid(Date obj, ConstraintValidatorContext context) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        dateFormat.format(date);
+        return obj.after(date);
+        //return false;
+    }
+}
