@@ -20,3 +20,37 @@ vault server –config=config.hcl
 >vault read auth/approle/role/demoApp/role-id
 
 >vault write -force auth/approle/role/demoApp/secret-id
+
+spring: 
+
+  cloud: 
+
+    vault: 
+
+      kv: 
+
+        application-name: alcon 
+
+        default-context: '' 
+
+        backend: test 
+
+        enabled: true 
+
+      authentication: APPROLE 
+
+      app-role: 
+
+        role-id: b03a70df-e527-4344-ba22-a606ea6e528b 
+
+        secret-id: d4950511-c4a7-75f4-486d-b8376873a829 
+
+        app-auth-path: approle 
+
+      scheme: https 
+
+      uri: https://isvaulttst.ad.infosys.com 
+
+      generic: 
+
+        enabled: false 
