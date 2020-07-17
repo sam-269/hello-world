@@ -54,3 +54,25 @@ spring:
       generic: 
 
         enabled: false 
+        
+        <dependencyManagement> 
+
+        <dependencies> 
+
+            <dependency> 
+
+                <groupId>org.springframework.cloud</groupId> 
+
+                <artifactId>spring-cloud-dependencies</artifactId> 
+
+                <version>Greenwich.M2</version> 
+
+                <type>pom</type> 
+
+                <scope>import</scope> 
+
+            </dependency> 
+
+        </dependencies> 
+
+    </dependencyManagement> 
